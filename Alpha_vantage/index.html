@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Terminal</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script defer src="./index.js"></script>
+
+    <script src="./lib/myAxios.js"></script>
+    <script src="./lib/myChart.js"></script>
+    <script src="./lib/myMapLibre.js"></script>
+    <script src="./lib/axios@1.13.min.js"></script>
+
+    <link rel="stylesheet" href="./index.css">
+
+</head>
+
+<body>
+    <div id="cyberLoader" class="cyber-loader-overlay">
+        <div class="spinner-border text-info" style="width: 4rem; height: 4rem; border-width: 0.3em;" role="status"></div>
+        <div class="mt-4 text-info fw-bold fs-5 neon-text pulse-ai">ANALISI DATI IN CORSO...</div>
+    </div>
+
+    <div class="cyber-grid"></div>
+
+    <div class="floating-nodes">
+        <div class="node"></div>
+        <div class="node"></div>
+        <div class="node"></div>
+        <div class="node"></div>
+    </div>
+
+    <div class="core-container">
+        <div class="ring"></div>
+        <div class="core"></div>
+        <div class="text">CEBOTARI MAXIM</div>
+    </div>
+    
+    <div class="ticker-wrap">
+        <div class="ticker" id="tickerContainer">
+            <div class="ticker__item text-muted">Caricamento dati di mercato in corso...</div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                🌌 Alpha Vantage Neo-Dash 
+                <span class="badge bg-dark border border-info text-info ms-3 pulse-ai">🧠 CEBOTARI MAXIM</span>
+            </a>
+            <button id="btnUpdateData" class="btn btn-outline-warning btn-sm pulse-warning">
+                🔄 Sincronizza Dati
+            </button>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+        <div class="row mb-2">
+            <div class="col-12">
+                <div class="d-flex align-items-center gap-2 flex-wrap bg-dark p-2 rounded border border-secondary" id="watchlistContainer">
+                    <span class="text-warning fw-bold">⭐ Watchlist:</span>
+                    <span id="emptyWatchlistMsg" class="text-muted small">Nessuna azienda salvata.</span>
+                    </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 position-relative">
+                <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="🔍 Scrivi qui per cercare (es. IBM, Sony)...">
+                <ul id="searchResults" class="list-group position-absolute w-100 shadow-lg" style="z-index: 1000;"></ul>
+            </div>
+            <div class="col-md-6">
+                <select id="companySelect" class="form-select form-select-lg">
+                    <option value="" disabled selected hidden>Caricamento aziende...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title text-info mb-0">Dati di Mercato (<span id="quoteSymbol">...</span>)</h5>
+                            <button id="btnToggleWatchlist" class="btn btn-sm btn-outline-warning d-none fw-bold">⭐ Salva</button>
+                        </div>
+                        <h2 id="quotePrice" class="display-4 fw-bold neon-text mt-3">--</h2>
+                        <h5 id="quoteChange">--</h5>
+                        <div class="table-responsive mt-4">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead>
+                                    <tr><th>Open</th><th>High</th><th>Low</th><th>Volume</th><th>Var</th><th>%</th></tr>
+                                </thead>
+                                <tbody id="quoteTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted">In attesa di dati...</td> </tr>
+                                </tbody>
+                             </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-info" id="overviewName">Overview Azienda</h5>
+                        <p id="overviewDesc" class="text-light small mt-2">Seleziona un'azienda per visualizzarne i dettagli finanziari e la posizione globale.</p>
+                        <div class="mb-3">
+                            <strong>HQ:</strong> <span id="overviewAddress">...</span><br>
+                            <strong>Web:</strong> <a id="overviewSite" href="#" target="_blank" class="text-warning text-decoration-none">N/D</a>
+                        </div>
+                        
+                        <div id="map" class="flex-grow-1 border border-secondary rounded"></div>
+                        <div id="mapMessage" class="alert alert-warning flex-grow-1 d-none align-items-center justify-content-center text-center m-0 border border-warning">
+                            <strong>⚠️ Posizione esatta dell'azienda non disponibile.</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4 mb-5">
+            <div class="col-12">
+                <div class="card shadow-lg h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                            <h5 class="card-title text-info mb-0">Andamento Azioni <span id="chartDataBadge" class="badge bg-secondary ms-2 fs-6">Dati Mensili</span></h5>
+                            
+                            <div class="d-flex gap-2 align-items-center flex-wrap">
+                                <select id="chartType" class="form-select w-auto bg-dark text-white">
+                                    <option value="line">Line</option>
+                                    <option value="bar">Bar</option>
+                                    <option value="doughnut">Doughnut</option>
+                                    <option value="pie">Pie</option>
+                                    <option value="horizontalBar">Horizontal Bar</option>
+                                    <option value="polarArea">Polar Area</option>
+                                </select>
+                                <button id="downloadChartBtn" class="btn btn-primary px-3 fw-bold">💾 Salva</button>
+                            </div>
+                        </div>
+                        <div class="chart-container flex-grow-1" style="position: relative; height:450px; width:100%">
+                            <canvas id="myChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="systemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-warning shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-warning" id="systemModalTitle">Attenzione</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="systemModalBody"></div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Chiudi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
