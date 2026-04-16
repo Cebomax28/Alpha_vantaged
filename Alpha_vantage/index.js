@@ -110,10 +110,10 @@ async function buildTickerBar() {
 }
 
 async function createSparklineData(targetSymbol) {
-    const intradayResponse = await ajax.sendRequest("GET", serverApiUrl + "/TIME_SERIES_INTRADAY?q=" + targetSymbol).catch(ajax.errore);
+    const intradayResponse = await ajax.sendRequest("GET", serverApiUrl + "/TIME_SERIES_INTRADAY").catch(ajax.errore);
     
     if (intradayResponse && intradayResponse.data) {
-        const intradayRecord = intradayResponse.data[0];
+        const intradayRecord = intradayResponse.data.find(r => r.symbol === targetSymbol);
         
         if (intradayRecord) {
             const timeSeriesPoints = intradayRecord["Intraday Time Series"];
@@ -232,7 +232,7 @@ function appendSaveJsonBtn() {
 }
 
 async function executeJsonDownload() {
-    const fullDbResponse = await ajax.sendRequest("GET", serverApiUrl + "/db").catch(ajax.errore);
+    const fullDbResponse = await ajax.sendRequest("GET", serverApiUrl + "server/db2026").catch(ajax.errore);
     let extractedData = {};
     let downloadReady = false;
 
@@ -355,9 +355,9 @@ async function onCompanyDropdownChange() {
         }
 
         const [quoteRes, overviewRes, timeSeriesRes] = await Promise.all([
-            ajax.sendRequest("GET", serverApiUrl + "/GLOBAL_QUOTE?q=" + currentSymbol).catch(ajax.errore),
-            ajax.sendRequest("GET", serverApiUrl + "/OVERVIEW?q=" + currentSymbol).catch(ajax.errore),
-            ajax.sendRequest("GET", serverApiUrl + "/TIME_SERIES_MONTHLY?q=" + currentSymbol).catch(ajax.errore)
+            ajax.sendRequest("GET", serverApiUrl + "/GLOBAL_QUOTE").catch(ajax.errore),
+            ajax.sendRequest("GET", serverApiUrl + "/OVERVIEW").catch(ajax.errore),
+            ajax.sendRequest("GET", serverApiUrl + "/TIME_SERIES_MONTHLY").catch(ajax.errore)
         ]);
 
         refreshQuoteData(quoteRes, currentSymbol);
@@ -638,7 +638,7 @@ async function syncWithAlphaVantage() {
     }
 
     const updatedQuoteData = payloadData["Global Quote"];
-    const checkLocalResponse = await ajax.sendRequest("GET", serverApiUrl + "/GLOBAL_QUOTE?q=" + activeSymbol).catch(ajax.errore);
+    const checkLocalResponse = await ajax.sendRequest("GET", serverApiUrl + "/GLOBAL_QUOTE").catch(ajax.errore);
 
     if (!checkLocalResponse || !checkLocalResponse.data || checkLocalResponse.data.length === 0) {
         syncDataButton.innerHTML = "❌ Azienda non nel DB";
@@ -781,7 +781,7 @@ async function loadCompanyArticles(querySymbol, queryName) {
 
     newsSidebarInstance.show();
 
-    const fetchNewsResponse = await ajax.sendRequest("GET", serverApiUrl + "/NEWS?q=" + querySymbol).catch(ajax.errore);
+    const fetchNewsResponse = await ajax.sendRequest("GET", serverApiUrl + "/NEWS?symbol=" + querySymbol).catch(ajax.errore);
 
     if (fetchNewsResponse && fetchNewsResponse.data && fetchNewsResponse.data.length > 0) {
         let compiledNewsHtml = '<div class="news-list">';
